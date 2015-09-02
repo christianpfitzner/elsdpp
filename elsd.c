@@ -193,7 +193,7 @@ static unsigned int get_num(FILE * f)
 /** Read a PGM file into an "image_double".
     If the name is "-" the file is read from standard input.
  */
-static image_double read_pgm_image_double(char * name)
+image_double read_pgm_image_double(char * name)
 {
   FILE * f;
   int c,bin;
@@ -700,7 +700,7 @@ static void gaussian_kernel(gauss_filter kernel, double sigma, double mean)
      sigma = sigma_scale / scale,   if scale <  1.0
      sigma = sigma_scale,           if scale >= 1.0
  */
-static image_double gaussian_sampler( image_double in, double scale,
+image_double gaussian_sampler( image_double in, double scale,
                                       double sigma_scale )
 {
   image_double aux;
@@ -1252,9 +1252,8 @@ int check_ellipse(double *param)
 
 
 /*----------------------------------------------------------------------------*/
-int main(int argc, char **argv)
+int pgm2svg(char *filename)
 {
-  if (argc<2) error("use : ./elsd image_name.pgm");
   double quant = 2.0;       /* Bound to the quantization error on the
                                 gradient norm.                                */
   double ang_th = 22.5;     /* Gradient angle tolerance in degrees.           */
@@ -1266,11 +1265,11 @@ int main(int argc, char **argv)
   int ell_count = 0, line_count = 0, circ_count = 0;
   image_double image;
 
-  image = read_pgm_image_double(argv[1]);
+  image = read_pgm_image_double(filename);
 
   EllipseDetection(image, rho, prec, p, eps, smooth, &ell_count, &circ_count, 
-                   &line_count,argv[1]);
-  printf("%s\n", argv[1]);
+                   &line_count,filename);
+  printf("%s\n", filename);
   printf("%d elliptical arcs, %d circular arcs, %d line segments\n", 
          ell_count, circ_count, line_count);
   return 0;

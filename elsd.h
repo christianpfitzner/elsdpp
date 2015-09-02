@@ -205,5 +205,17 @@ double angle_diff_signed(double a, double b);
 double angle_diff(double a, double b);
 double angle_diff_full(double a, double b, int sens);
 /*----------------------------------------------------------------------------*/
+
+image_double read_pgm_image_double(char * name);
+
+image_double gaussian_sampler( image_double in, double scale,
+                                      double sigma_scale );
+
+image_double ll_angle(image_double in,double threshold,struct coorlist **list_p,
+                      void **mem_p,image_double *gradx, image_double *grady, 
+                      image_double *grad,unsigned int n_bins, double max_grad);
+
+int pgm2svg(char *filename);
+
 #endif
 

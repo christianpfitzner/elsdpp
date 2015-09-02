@@ -15,10 +15,21 @@
 #  You should have received a copy of the GNU Affero General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+CC=gcc
+AR=ar
+CFLAGS=-Wall
+OBJS=valid_curve.o process_curve.o process_line.o write_svg.o elsd.o
 
-elsd :	elsd.c valid_curve.c process_curve.c process_line.c write_svg.c
-	cc -o elsd elsd.c valid_curve.c process_curve.c process_line.c write_svg.c -llapack -lblas -lm
+all : libelsd.a
 
+libelsd.a : $(OBJS)
+	$(AR) rcs $@ $^
 
+$(OBJS): %.o: %.c
+	$(CC) -c $(CFLAGS) $< -o $@
 
+clean:
+	rm -f *.o
+
+.PHONY: all clean
 
