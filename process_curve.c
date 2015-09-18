@@ -252,9 +252,9 @@ void fitcircle(int reg_size, double *vgg, double *param)
   if (reg_size<=0) error("fitcircle: invalid size");
   int i,j,k;
   double A[16]; 
-  int idx;
+  //int idx;
   
-  idx = 0;
+  //idx = 0;
 
   for(i=0; i<reg_size*4*6; i+=6)
     { 
@@ -604,7 +604,7 @@ void subcurve(struct point *reg, int *reg_size, double prec, double p,
   int reg_size0 = 0;
   struct rect rec;
   double reg_angle;
-  int flag;
+  //int flag;
   int i;
   double difang;
 
@@ -618,7 +618,8 @@ void subcurve(struct point *reg, int *reg_size, double prec, double p,
       if (*reg_size-reg_size0 > 1)
         {
           region2rect(reg, reg_size0, *reg_size, grad, reg_angle, prec, p, &rec);
-          flag = refine(reg, reg_size0, reg_size, grad, gradx, grady, prec, p, &rec, used,
+          //flag =
+          refine(reg, reg_size0, reg_size, grad, gradx, grady, prec, p, &rec, used,
                         angles, density_th, logNT, mlog10eps);             
           if (dist(rec.x1,rec.y1,rec.x2,rec.y2)<1)
             {

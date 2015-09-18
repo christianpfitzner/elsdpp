@@ -75,10 +75,12 @@ double angle_diff_full(double a, double b, int sens)
   a -= b;
   if (sens == 1 && a<0) a+= M_2__PI;
   if (sens == 2)
+  {
     if (a>0) 
       a = M_2__PI - a;
     else 
       a = -a;
+  }
   return a;
 }
 /*----------------------------------------------------------------------------*/
