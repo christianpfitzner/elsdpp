@@ -29,8 +29,7 @@
 #include "valid_curve.h"
 #include "process_curve.h"
 #include "process_line.h"
-#include <f2c.h>
-#include <clapack.h>
+#include <lapacke.h>
 
 
 
@@ -275,10 +274,10 @@ void fitcircle(int reg_size, double *vgg, double *param)
 #define SIZE4 4
   char JOBZ = 'V';
   char UPLO = 'U';
-  integer M = SIZE4;
-  integer LDA = M;
-  integer LWORK = 4*SIZE4;
-  integer INFO;
+  int M = SIZE4;
+  int LDA = M;
+  int LWORK = 4*SIZE4;
+  int INFO;
   double W[SIZE4];
   double WORK[LWORK];
   dsyev_(&JOBZ, &UPLO, &M, A, &LDA, W, WORK, &LWORK, &INFO); 
@@ -333,10 +332,10 @@ void fitellipse(int reg_size, double *vgg, double *param)
 #define SIZE6 6
   char JOBZ = 'V';
   char UPLO = 'U';    
-  integer M = SIZE6;
-  integer LDA = M;
-  integer LWORK = 4*SIZE6;
-  integer INFO;
+  int M = SIZE6;
+  int LDA = M;
+  int LWORK = 4*SIZE6;
+  int INFO;
   double W[SIZE6];
   double WORK[LWORK];
   dsyev_(&JOBZ, &UPLO, &M, A, &LDA, W, WORK, &LWORK, &INFO); 
