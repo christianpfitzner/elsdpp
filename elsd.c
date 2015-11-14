@@ -34,6 +34,7 @@
 #include "valid_curve.h"
 #include "process_curve.h"
 #include "process_line.h"
+#include <stdarg.h>
 
 /*----------------------------------------------------------------------------*/
 /* Init global temporary variables */
@@ -58,9 +59,12 @@ double dist(double x1, double y1, double x2, double y2)
 
 
 /*---------------------------------------------------------------------------*/
-void error(char * msg)
+void error(char * msg, ...)
 {
-    fprintf(stderr,"%s\n",msg);
+    va_list args;
+    va_start( args, msg );
+    vfprintf(stderr,"%s\n", args);
+    va_end( args );
     exit(EXIT_FAILURE);
 }
 /*----------------------------------------------------------------------------*/
@@ -195,7 +199,7 @@ static unsigned int get_num(FILE * f)
 /** Read a PGM file into an "image_double".
     If the name is "-" the file is read from standard input.
  */
-image_double read_pgm_image_double(char * name)
+image_double read_pgm_image_double(const char * name)
 {
   FILE * f;
   int c,bin;
@@ -1042,9 +1046,16 @@ void region_grow( int x, int y, image_double angles, struct point * reg,
 /*----------------------------------------------------------------------------*/
 /** 
  */
-void EllipseDetection(image_double image,double rho,double prec,double p, 
-                      double eps,int smooth,int *ell_count, 
-                      int *circ_count,int *line_count,char *fstr)
+void EllipseDetection(image_double image,
+                      double rho,
+                      double prec,
+                      double p,
+                      double eps,
+                      int smooth,
+                      int *ell_count,
+                      int *circ_count,
+                      int *line_count,
+                      char *filename)
 {
   image_double angles,gradx,grady,grad,imgauss;
   image_char used;
@@ -1088,8 +1099,8 @@ void EllipseDetection(image_double image,double rho,double prec,double p,
   ysize = angles->ysize;
 
   /* display detection result */
-  svg = init_svg(strcat(fstr,".svg"),xsz0,ysz0);
-  
+  svg = init_svg(strcat(filename,".svg"),xsz0,ysz0);
+
   /* number of tests for elliptical arcs */
   logNT[2] = 4.0 *(log10((double)xsize)+log10((double)ysize)) + log10(9.0) + log10(3.0); /* N^8 */
   /* number of tests for circular arcs */
@@ -1251,31 +1262,5 @@ int check_ellipse(double *param)
 
 /*----------------------------------------------------------------------------*/
 
-
-
-/*----------------------------------------------------------------------------*/
-int pgm2svg(char *filename)
-{
-  double quant = 2.0;       /* Bound to the quantization error on the
-                                gradient norm.                                */
-  double ang_th = 22.5;     /* Gradient angle tolerance in degrees.           */
-  double p = ang_th/180.0;
-  double prec = M_PI*ang_th/180.0; /* radian precision */
-  double rho = quant/sin(prec);
-  double eps = 1; //atof(argv[2]);
-  int smooth = 1; //atoi(argv[3]);
-  int ell_count = 0, line_count = 0, circ_count = 0;
-  image_double image;
-
-  image = read_pgm_image_double(filename);
-
-  EllipseDetection(image, rho, prec, p, eps, smooth, &ell_count, &circ_count, 
-                   &line_count,filename);
-  printf("%s\n", filename);
-  printf("%d elliptical arcs, %d circular arcs, %d line segments\n", 
-         ell_count, circ_count, line_count);
-  return 0;
-}
-/*----------------------------------------------------------------------------*/
 
 

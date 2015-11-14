@@ -16,7 +16,7 @@
 #  along with this program. If not, see <http://www.gnu.org/licenses/>.
 cmake_minimum_required (VERSION 2.8.11)
 project (elsdpp)
-set(ELSD_SRC
+set(ELSD_SRCS
   valid_curve.c
   process_curve.c
   process_line.c
@@ -27,11 +27,21 @@ set(ELSD_INC
   elsd.h
   )
 
-find_library(DEPENDENCIES NAMES
-  lapack
-  blas
-  m)
-add_library(elsd SHARED ${ELSD_SRC})
+find_library(LAPACK_LIB NAMES lapack)
+find_library(BLAS_LIB NAMES blas)
+find_library(MATH_LIB NAMES m)
+
+set(ELSD_LIBS
+    ${LAPACK_LIB}
+    ${BLAS_LIB}
+    ${MATH_LIB}
+    )
+
+add_library(elsd SHARED ${ELSD_SRCS})
+add_executable(pgm2svg main.c)
+target_link_libraries(pgm2svg elsd ${ELSD_LIBS})
+
 
 install(TARGETS elsd DESTINATION lib)
+install(TARGETS pgm2svg DESTINATION bin)
 install(FILES ${ELSD_INC} DESTINATION include)

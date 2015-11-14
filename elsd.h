@@ -188,7 +188,7 @@ struct doublepoint {double x,y;};
 
 
 /*----------------------------------------------------------------------------*/
-void error(char * msg);
+void error(char * msg, ...);
 int double_equal(double a, double b);
 int isaligned(int x, int y, image_double theta, double angle,
                      double precision);
@@ -206,7 +206,7 @@ double angle_diff(double a, double b);
 double angle_diff_full(double a, double b, int sens);
 /*----------------------------------------------------------------------------*/
 
-image_double read_pgm_image_double(char * name);
+image_double read_pgm_image_double(const char * name);
 
 image_double gaussian_sampler( image_double in, double scale,
                                       double sigma_scale );
@@ -215,7 +215,17 @@ image_double ll_angle(image_double in,double threshold,struct coorlist **list_p,
                       void **mem_p,image_double *gradx, image_double *grady, 
                       image_double *grad,unsigned int n_bins, double max_grad);
 
-int pgm2svg(char *filename);
+
+void EllipseDetection(image_double image,
+                      double rho,
+                      double prec,
+                      double p,
+                      double eps,
+                      int smooth,
+                      int *ell_count,
+                      int *circ_count,
+                      int *line_count,
+                      char *filename);
 
 #endif
 
