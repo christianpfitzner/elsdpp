@@ -17,14 +17,13 @@
 cmake_minimum_required (VERSION 2.8.11)
 project (elsdpp)
 set(ELSD_SRCS
-  valid_curve.c
-  process_curve.c
-  process_line.c
-  write_svg.c
-  elsd.c
+  src/valid_curve.c
+  src/process_curve.c
+  src/process_line.c
+  src/write_svg.c
+  src/elsd.c
   )
 set(ELSD_INC
-  elsd.h
   )
 
 find_library(LAPACK_LIB NAMES lapack)
@@ -38,7 +37,7 @@ set(ELSD_LIBS
     )
 
 add_library(elsd SHARED ${ELSD_SRCS})
-add_executable(pgm2svg main.c)
+add_executable(pgm2svg src/main.c)
 target_link_libraries(pgm2svg elsd ${ELSD_LIBS})
 
 
