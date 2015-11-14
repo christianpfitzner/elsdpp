@@ -14,22 +14,24 @@
 #
 #  You should have received a copy of the GNU Affero General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>.
+cmake_minimum_required (VERSION 2.8.11)
+project (elsdpp)
+set(ELSD_SRC
+  valid_curve.c
+  process_curve.c
+  process_line.c
+  write_svg.c
+  elsd.c
+  )
+set(ELSD_INC
+  elsd.h
+  )
 
-CC=gcc
-AR=ar
-CFLAGS=-Wall
-OBJS=valid_curve.o process_curve.o process_line.o write_svg.o elsd.o
+find_library(DEPENDENCIES NAMES
+  lapack
+  blas
+  m)
+add_library(elsd SHARED ${ELSD_SRC})
 
-all : libelsd.a
-
-libelsd.a : $(OBJS)
-	$(AR) rcs $@ $^
-
-$(OBJS): %.o: %.c
-	$(CC) -c $(CFLAGS) $< -o $@
-
-clean:
-	rm -f *.o
-
-.PHONY: all clean
-
+install(TARGETS elsd DESTINATION lib)
+install(FILES ${ELSD_INC} DESTINATION include)
