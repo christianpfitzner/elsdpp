@@ -16,15 +16,25 @@
 #  along with this program. If not, see <http://www.gnu.org/licenses/>.
 cmake_minimum_required (VERSION 2.8.11)
 project (elsdpp)
+
+# add_definitions(-std=c++11 -fPIC)
+set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++11 -fPIC")
+
 set(ELSD_SRCS
   src/valid_curve.c
   src/process_curve.c
   src/process_line.c
   src/write_svg.c
   src/elsd.c
+  src/elsdetector.cpp
+  src/svgwriter.cpp
   )
 set(ELSD_INC
+  include/elsdetector.hpp
+  include/svgwriter.hpp
   )
+
+include_directories(include)
 
 find_library(LAPACK_LIB NAMES lapack)
 find_library(BLAS_LIB NAMES blas)
