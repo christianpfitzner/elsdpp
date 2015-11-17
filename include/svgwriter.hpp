@@ -6,59 +6,67 @@
 #include <vector>
 #include <tuple>
 #include <algorithm>
+#include "elsdshapes.hpp"
+#include <ostream>
+
+namespace elsd {
 
 /** \addtogroup ELSD
  *  @{
  */
 
+class SvgHeader {
+public:
+    std::array<unsigned int, 2> size;
+friend
+    std::ostream& operator<<(std::ostream &os, const SvgHeader &self)
+        {
+        using namespace std;
+        os << "<?xml version=\"1.0\" standalone=\"no\"?>" << endl
+           << "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\"" << endl
+           << " \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">" << endl
+           << "<svg width=\"" << self.size[0] << "\" height=\"" << self.size[1] << "\" "
+           << "version=\"1.1\"\n xmlns=\"http://www.w3.org/2000/svg\" "
+           << "xmlns:xlink=\"http://www.w3.org/1999/xlink\">" << endl;
+        }
+    };
+
 /*!
  * \brief The SVG Writer of shapes given in ELSD format
  */
-class SVGWriter final
-{
+class SvgWriter final
+    {
 public:
-
-    typedef std::array<double, 5> LineSegment;
-    typedef std::tuple < std::array<double, 5>, std::array<int, 8> > Ellipse;
-    typedef std::tuple < std::array<double, 5>, std::array<int, 8> > Circle;
-
-    /*!
-     * \brief open file name to write shapes to
-     * \param fileName file path to open
-     * \param xsize image width
-     * \param ysize image height
-     * \param smoothed smooth parameter, leave default value - this is not tested
-     */
-    SVGWriter(const std::string& fileName, unsigned int xsize, unsigned int ysize, unsigned int smoothed = 1);
-    ~SVGWriter();
-
-    /// write given text to file
-    void write(const std::string& text) const;
-
-    /// write one line segment in SVG format
-    void writeLineSegment(const LineSegment& lineSegment) const;
-
-    /// write one circle in SVG format
-    void writeCircle(const Circle& circle) const;
-
-    /// write one ellipse in SVG format
-    void writeEllipse(const Ellipse& ellipse) const;
+    SvgWriter(unsigned int xsize, unsigned int ysize);
+        ~SvgWriter();
 
     /// write multiple line segments in SVG format
-    void writeLineSegments(const std::vector<LineSegment>& lineSegment) const;
+    void addLineSegment(const LineSegment& lineSegment) { lineSegments.push_back(lineSegment); }
 
     /// write multiple circles in SVG format
-    void writeCircles(const std::vector<Circle>& circle) const;
-
-    /// write multiple ellipsess in SVG format
-    void writeEllipses(const std::vector<Ellipse>& ellipse) const;
+    void addArc(const SvgArc& svgArc) { svgArcs.push_back(svgArc); }
 
 private:
-    FILE *svg;
-    FILE *fe;
-    unsigned int smooth;
-};
+    std::vector<LineSegment> lineSegments;
+    std::vector<SvgArc> svgArcs;
+    SvgHeader header;
+
+    friend
+    std::ostream& operator<<(std::ostream &os, const SvgWriter &self)
+        {
+        os << self.header;
+        std::for_each(self.lineSegments.begin(), self.lineSegments.end(),
+            [&](const LineSegment& lineSegment) { os << lineSegment; }
+            );
+        std::for_each(self.svgArcs.begin(), self.svgArcs.end(), [&](const SvgArc& svgArc)
+            { os << svgArc; }
+            );
+        return os;
+        }
+    };
 
 /** @}*/
+
+} // namespace elsd
 
 #endif // SVGWRITER_H

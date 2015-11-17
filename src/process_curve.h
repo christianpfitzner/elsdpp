@@ -31,7 +31,7 @@ void valid_curve(struct point *reg,int *reg_size,double prec,double p,
 double d_rosin (double *param,double x,double y);
 double angle(double x,double y,double *foci);
 void param2ellipse(double *param, double *ellipse);
-void rosin_point (double *param,double x,double y,double *xi,double *yi);
+void rosin_point (const double *param,double x,double y,double *xi,double *yi);
 void fitellipse(int reg_size,double *vgg,double *param);
 void fitcircle(int reg_size,double *vgg,double *param);
 void fit_equations(struct point *reg,int reg_size,image_double gradx, 

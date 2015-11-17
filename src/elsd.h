@@ -152,6 +152,8 @@ typedef struct image_double_s
   unsigned int xsize,ysize;
 } *image_double;
 
+typedef const struct image_double_s *image_double_const;
+
 void free_image_double(image_double i);
 image_double new_image_double(unsigned int xsize, unsigned int ysize);
 image_double new_image_double_ini( unsigned int xsize, unsigned int ysize,
@@ -208,24 +210,11 @@ double angle_diff_full(double a, double b, int sens);
 
 image_double read_pgm_image_double(const char * name);
 
-image_double gaussian_sampler( image_double in, double scale,
+image_double gaussian_sampler(image_double_const in, double scale,
                                       double sigma_scale );
 
 image_double ll_angle(image_double in,double threshold,struct coorlist **list_p,
                       void **mem_p,image_double *gradx, image_double *grady, 
                       image_double *grad,unsigned int n_bins, double max_grad);
 
-
-void EllipseDetection(image_double image,
-                      double rho,
-                      double prec,
-                      double p,
-                      double eps,
-                      int smooth,
-                      int *ell_count,
-                      int *circ_count,
-                      int *line_count,
-                      char *filename);
-
 #endif
-

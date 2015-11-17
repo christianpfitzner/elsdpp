@@ -407,7 +407,7 @@ void min_array_pos(double *v, int sz,int *pos)
 /** Compute the point belonging to an ellipse, closest to a given point with
     integer coordinates.
  */
-void rosin_point (double *param,double x,double y,double *xi,double *yi)
+void rosin_point (const double *param,double x,double y,double *xi,double *yi)
 {  
 
   double ae2 = param[2]*param[2];

@@ -20,15 +20,6 @@ project (elsdpp)
 # add_definitions(-std=c++11 -fPIC)
 set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++11 -fPIC")
 
-set(ELSD_SRCS
-  src/valid_curve.c
-  src/process_curve.c
-  src/process_line.c
-  src/write_svg.c
-  src/elsd.c
-  src/elsdetector.cpp
-  src/svgwriter.cpp
-  )
 set(ELSD_INC
   include/elsdetector.hpp
   include/svgwriter.hpp
@@ -46,11 +37,13 @@ set(ELSD_LIBS
     ${MATH_LIB}
     )
 
-add_library(elsd SHARED ${ELSD_SRCS})
-add_executable(pgm2svg src/main.c)
-target_link_libraries(pgm2svg elsd ${ELSD_LIBS})
+add_subdirectory(src)
+add_subdirectory(test)
 
+# TESTING
 
-install(TARGETS elsd DESTINATION lib)
-install(TARGETS pgm2svg DESTINATION bin)
+enable_testing()
+
+add_test ("Elsdetector_Test" test/elsdetector_test)
+
 install(FILES ${ELSD_INC} DESTINATION include)

@@ -7,12 +7,24 @@
 #include <string>
 #include <exception>
 #include <memory>
+#include "elsdshapes.hpp"
 
-class image_double_s;
+extern "C" {
+    struct image_double_s;
+    }
+
+namespace elsd {
 
 /** \addtogroup ELSD
  *  @{
  */
+
+class ImageInterface {
+public:
+    virtual int xsize() const = 0;
+    virtual int ysize() const = 0;
+    virtual unsigned char pixel(int ypos, int xpos) const = 0;
+    };
 
 /*!
  * \brief The wrapper class for calling ELSD extraction function
@@ -23,10 +35,6 @@ class ElsDetector final
 {
 public:
     typedef std::shared_ptr<ElsDetector> Ptr;
-
-    typedef std::array<double, 5> LineSegment;
-    typedef std::tuple < std::array<double, 5>, std::array<int, 8> > Ellipse;
-    typedef Ellipse Circle;
 
     /*!
      * \brief initialization of algorithm with default parameters
@@ -44,7 +52,8 @@ public:
      * \brief run ELSD extraction on given data
      * \param img image in ELSD format
      */
-    void run(image_double_s* const img);
+    void run(const char* PGMfilename);
+    void run(const ImageInterface& img);
 
     /*!
      * \brief get all LineSegments detected
@@ -56,26 +65,33 @@ public:
      * \brief get all Circles detected
      * \return Circles in ELSD format
      */
-    const std::vector<Circle>& getCircles() const { return circles; }
+    const std::vector<SvgArc>& getCircles() const { return circles; }
 
     /*!
      * \brief get all Ellipses detected
      * \return Ellipses in ELSD format
      */
-    const std::vector<Ellipse>& getEllipses() const { return ellipses ; }
+    const std::vector<SvgArc>& getEllipses() const { return ellipses ; }
+
+    unsigned int getXsize() const { return xsize*1.25; };
+    unsigned int getYsize() const { return ysize*1.25; };
 
 private:
+    void run(const image_double_s *img);
+
     unsigned int xsize;
     unsigned int ysize;
 
     std::vector<LineSegment> linesegments;
-    std::vector<Circle> circles;
-    std::vector<Ellipse> ellipses;
+    std::vector<SvgArc> circles;
+    std::vector<SvgArc> ellipses;
 
     const double p;
     const double eps;
 };
 
 /** @}*/
+
+} // namespace elsd
 
 #endif // ELSDETECTOR_H
