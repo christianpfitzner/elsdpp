@@ -1,10 +1,11 @@
 set(ELSD_SRCS
-  valid_curve.c
-  process_curve.c
-  process_line.c
   elsd.c
   elsdetector.cpp
-  svgwriter.cpp
+  elsdpgmfilereader.cpp
+  elsdsvgwriter.cpp
+  process_curve.c
+  process_line.c
+  valid_curve.c
   )
 
 add_library(elsd SHARED ${ELSD_SRCS})

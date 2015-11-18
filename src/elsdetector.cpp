@@ -1,5 +1,6 @@
 #include <boost/format.hpp>
 #include "elsdetector.hpp"
+#include <array>
 
 extern "C" {
 #include "elsd.h"
@@ -18,8 +19,14 @@ T deg2rad(T deg) { return deg*M_PI/180.0; }
 template <typename T>
 T rad2deg(T rad) { return rad*180.0/M_PI; }
 
+static const double FilterDownScale = 0.8;
+static const double FilterUpScale = 1.0 / FilterDownScale;
+
 template <typename T, int N>
-std::array<T, N> scaleParams(const std::array<T, N> &params, int num = N, int from = 0, double scale = 1.25)
+std::array<T, N> upscaleParams(const std::array<T, N> &params,
+    int num = N,
+    int from = 0,
+    double scale = FilterUpScale)
     {
     std::array<T, N> scaled = params;
     for (int i = from; i < num; ++i)
@@ -111,40 +118,22 @@ LineSegment toLineSegment(const std::array<double, 5> &line)
     return lineSegment;
     }
 
-}
-
-ElsDetector::ElsDetector(double epsilon) :
-    xsize(0),
-    ysize(0),
-    p(1./8.),
-    eps(epsilon)
+image_double convertImage(const ImageInterface::Ptr img)
     {
-//    static const double angleTolerance = 2;
+    image_double grey = new_image_double(img->xsize(), img->ysize());
+    for (unsigned int y = 0; y < img->ysize(); ++y)
+        for (unsigned int x = 0; x < img->xsize(); ++x)
+            grey->data[x + y * img->xsize()] = img->pixel(y, x);
+    return grey;
     }
 
-ElsDetector::~ElsDetector()
-    {
-    }
+} // namespace
 
-void ElsDetector::run(const char* filename)
+void ElsDetector::run(const ImageInterface::Ptr _img)
     {
-    image_double image = read_pgm_image_double(filename);
-    run(image);
-    free_image_double(image);
-    }
-
-void ElsDetector::run(const ImageInterface &img)
-    {
-    image_double image = new_image_double(img.xsize(), img.ysize());
-    for (unsigned int y = 0; y < img.ysize(); ++y)
-        for (unsigned int x = 0; x < img.xsize(); ++x)
-            image->data[x + y * img.xsize()] = img.pixel(y, x);
-    run(image);
-    free_image_double(image);
-    }
-
-void ElsDetector::run(const image_double_s *img)
-    {
+    image_double grey = convertImage(_img);
+    double p = 1./8.;
+    double eps = 1;
     static const double prec = M_PI*p;
     // quantizationError Bound to the quantization error on the gradient norm
     // because of quantization to {0 ... 255} the maximal possible error in the gradient is 1
@@ -180,22 +169,21 @@ void ElsDetector::run(const image_double_s *img)
     std::array<int, 8> pext;
     unsigned int xsz0,ysz0;
 
-    xsz0 = img->xsize;
-    ysz0 = img->ysize;
+    xsz0 = grey->xsize;
+    ysz0 = grey->ysize;
 
     // smoothing preprocessing gaussian smoothing of input image
     // the standard deviation of Gaussian kernel is determined by:
     // \sigma = \Sigma / S, where S is the scaling factor
     // The value of \Sigma is set to 0.6, which gives a good balance
     // between avoiding aliasing and avoiding image bluring
-    static const double scale = 0.8;
     static const double sigma_scale = 0.6;
-    image = gaussian_sampler(img, scale, sigma_scale);
+    image = gaussian_sampler(grey, FilterDownScale, sigma_scale);
 
     angles = ll_angle(image,gradient_angle_error,&list_p,&mem_p,&gradx,&grady,&grad,n_bins,max_grad);
 
-    xsize = angles->xsize;
-    ysize = angles->ysize;
+    unsigned int xsize = angles->xsize;
+    unsigned int ysize = angles->ysize;
 
     /* number of tests for elliptical arcs */
     logNT[2] = 4.0 *(log10((double)xsize)+log10((double)ysize)) + log10(9.0) + log10(3.0); /* N^8 */
@@ -248,16 +236,18 @@ void ElsDetector::run(const image_double_s *img)
                 /* ------ DECIDE IF LINEAR SEGMENT OR CIRCLE OR ELLIPSE BY COMPARING THEIR NFAs -------*/
                 if(nfa[2]>mlog10eps && nfa[2]>nfa[0] && nfa[2]>nfa[1] && regp_size[2]>min_size[2]) /* ellipse */ {
 
-                    // param[0] *= 1.25;
-                    // param[1] *= 1.25;
-                    // param[2] *= 1.25;
-                    // param[3] *= 1.25;
-                    // pext[4] *= 1.25;
-                    // pext[5] *= 1.25;
-                    // pext[6] *= 1.25;
-                    // pext[7] *= 1.25;
-                    ellipses.push_back(toEllipticalArc(scaleParams<double, 5>(parame, 4), scaleParams<int, 8>(pext, 4, 4)));
-                    //typedef std::tuple < std::array<double, 5>, std::array<int, 8> > Ellipse;
+                    ellipticalArcs.push_back(toEllipticalArc(
+                            // param[0] *= 1.25;
+                            // param[1] *= 1.25;
+                            // param[2] *= 1.25;
+                            // param[3] *= 1.25;
+                            upscaleParams<double, 5>(parame, 4),
+                            // pext[4] *= 1.25;
+                            // pext[5] *= 1.25;
+                            // pext[6] *= 1.25;
+                            // pext[7] *= 1.25;
+                            upscaleParams<int, 8>(pext, 4, 4))
+                        );
 
                     for (i=0;i<regp_size[0];i++)
                         used->data[regl[i].y*used->xsize+regl[i].x] = NOTUSED;
@@ -282,7 +272,7 @@ void ElsDetector::run(const image_double_s *img)
                     // pext[1] *= 1.25;
                     // pext[2] *= 1.25;
                     // pext[3] *= 1.25;
-                    circles.push_back(toCircularArc(scaleParams<double, 5>(paramc, 4), scaleParams<int, 8>(pext, 4)));
+                    circularArcs.push_back(toCircularArc(upscaleParams<double, 5>(paramc, 4), upscaleParams<int, 8>(pext, 4)));
 
                     for (i=0;i<regp_size[0];i++)
                        used->data[regl[i].y*used->xsize+regl[i].x] = NOTUSED;
@@ -298,7 +288,7 @@ void ElsDetector::run(const image_double_s *img)
 
                     // for (auto i = 0; i < linSmooth.size(); ++i)
                     //     linSmooth[i] = lin[i]*1.25;
-                    linesegments.push_back(toLineSegment(scaleParams<double, 5>(lin)));
+                    lineSegments.push_back(toLineSegment(upscaleParams<double, 5>(lin)));
 
                     for (i=0;i<regp_size[1];i++)
                         used->data[regc[i].y*used->xsize+regc[i].x] = NOTUSED;
@@ -319,6 +309,7 @@ void ElsDetector::run(const image_double_s *img)
         }/* IF USED */
     }/* FOR LIST */
 
+    free_image_double(grey);
     free_image_double(image);
     free_image_double(gradx);
     free_image_double(grady);

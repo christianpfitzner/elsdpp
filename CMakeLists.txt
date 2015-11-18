@@ -22,7 +22,12 @@ set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++11 -fPIC")
 
 set(ELSD_INC
   include/elsdetector.hpp
-  include/svgwriter.hpp
+  include/elsdpgmfilereader.hpp
+  include/elsdshapes.hpp
+  include/elsdsvgwriter.hpp
+  include/imageinterface.hpp
+  include/shapesdetectorinterface.hpp
+  include/svgwriterinterface.hpp
   )
 
 include_directories(include)
