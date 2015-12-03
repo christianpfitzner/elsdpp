@@ -10,7 +10,7 @@ extern "C" {
 
 namespace elsd {
 
-/// read PGM file - ELSD specific feature
+// read PGM file - ELSD specific feature
 class ElsdPgmFileReader final : public ImageInterface
     {
     public:
@@ -30,6 +30,6 @@ class ElsdPgmFileReader final : public ImageInterface
     image_double_s *image;
     };
 
-}
+} // namespace elsd
 
 #endif /* ELSDPGMFILEREADER_H */

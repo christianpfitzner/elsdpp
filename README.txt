@@ -1,9 +1,13 @@
+This project is a simple wrapper to ELSD program
+which can be used now as library.
+modified by: Rafal Pietruch rpietruch (at) piap (dot) pl
+
 ABOUT THIS SOURCE CODE
 The files in this folder contain the source code of ELSD, published in 
 'A Parameterless Line Segment and Elliptical Arc Detector with Enhanced Ellipse
 Fitting', V. Patraucean, P. Gurdjos, R. Grompone von Gioi, ECCV2012.
 
-Corresponding author: viorica patraucean vpatrauc@enseeiht.fr.  
+Corresponding author: viorica patraucean vpatrauc (at) enseeiht (dot) fr  
  
 The code generating and validating line segment hypotheses is taken up from 
 LSD source code, available at http://www.ipol.im/pub/art/2012/gjmr-lsd/.
