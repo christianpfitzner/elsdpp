@@ -1,6 +1,7 @@
 #include <boost/format.hpp>
 #include "elsdetector.hpp"
 #include <array>
+#include <math.h>
 
 extern "C" {
 #include "elsd.h"
